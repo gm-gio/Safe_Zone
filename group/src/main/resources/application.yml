@@ -6,7 +6,7 @@ spring:
     name: group
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5432/group
     username: postgres
     password: 1111
   jpa:
@@ -17,3 +17,9 @@ spring:
         hibernate:
           ddl-auto: update
           show-sql: 'true'
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+      fetch-registry: true
+      register-witch-eureka: rue
