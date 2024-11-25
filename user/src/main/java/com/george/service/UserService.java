@@ -11,4 +11,7 @@ public interface UserService {
 
     @Transactional(readOnly = true)
     List<User> getAllUsers();
+
+    @Transactional(readOnly = true)
+    User getUserById(Long userId);
 }

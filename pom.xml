@@ -16,6 +16,7 @@
         <module>group</module>
         <module>clients</module>
         <module>eureka_server</module>
+        <module>api_gateway</module>
     </modules>
 
     <properties>

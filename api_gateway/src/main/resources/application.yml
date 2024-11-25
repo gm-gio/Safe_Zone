@@ -1,0 +1,28 @@
+server:
+  port: 8083
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user
+          uri: lb://USER
+          predicates:
+            - Method=GET,POST
+        - id: group
+          uri: lb://GROUP
+          predicates:
+            - Method=GET,POST
+        - id: eureka
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/**
+
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true

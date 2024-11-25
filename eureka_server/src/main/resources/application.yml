@@ -7,5 +7,5 @@ server:
 eureka:
   client:
     fetch-registry: false
-    register-witch-eureka: false
+    register-with-eureka: false
 
