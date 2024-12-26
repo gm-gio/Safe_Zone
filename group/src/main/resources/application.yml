@@ -14,9 +14,18 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        hibernate:
-          ddl-auto: update
-          show-sql: 'true'
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: user-register-event
+      properties:
+        spring.json.trusted.packages: "com.george.core"
+
 eureka:
   client:
     service-url:

@@ -17,6 +17,7 @@
         <module>clients</module>
         <module>eureka_server</module>
         <module>api_gateway</module>
+        <module>kafka-dto</module>
     </modules>
 
     <properties>

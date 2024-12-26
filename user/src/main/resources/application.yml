@@ -18,6 +18,13 @@ spring:
     hibernate:
       ddl-auto: update
 
+  kafka:
+     bootstrap-servers: localhost:9092
+     partitions: 3
+     topics:
+       user-register: user-register-topics
+
+
 eureka:
   client:
     service-url:
