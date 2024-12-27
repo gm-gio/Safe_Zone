@@ -1,21 +1,16 @@
 package com.george.user.service.impl;
 
-
 import com.george.core.UserRegisterEvent;
 import com.george.user.dto.UserRequest;
 
-
 import com.george.user.dto.UserResponse;
-
 import com.george.user.entity.UserRole;
 import com.george.user.exception.UserNotFoundException;
 import com.george.user.exception.UserRegistrationException;
 import com.george.user.mapper.UserMapper;
 import com.george.user.repository.UserRepository;
-
 import com.george.user.service.UserService;
 import com.george.user.entity.User;
-
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,21 +58,15 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     private void sendUserRegistrationEvent(User user) {
         UserRegisterEvent event = new UserRegisterEvent(
-                user.getUserId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail()
+                user.getUserId()
         );
-
         kafkaTemplate.send(userRegisterTopic, event);
-
     }
 
-    @Override
     @Transactional
+    @Override
     public UserResponse updateUser(Long userId, UserRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -86,39 +75,24 @@ public class UserServiceImpl implements UserService {
         user.setLastName(request.getLastName());
         user.setPhone(request.getPhone());
 
-
         User updatedUser = userRepository.save(user);
         return mapper.mapToResponse(updatedUser);
     }
 
 
 
-
-//    @Override
-//    public void registerUser(UserRequest request) {
-//    User user = User.builder()
-//            .firstName(request.getFirstName())
-//            .lastName(request.getLastName())
-//            .email(request.getEmail())
-//            .phone(request.getPhone())
-//            .passwordHash(request.getPasswordHash())
-//            .userRole(request.getUserRole())
-//            .build();
-//
-//    userRepository.save(user);
-//    }
-
-
-
-    @Transactional(readOnly = true)
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(mapper::mapToResponse)
+                .toList();
     }
 
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -126,4 +100,13 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
+    @Transactional
+    public void deleteById(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+        userRepository.delete(user);
+    }
 }

@@ -23,7 +23,7 @@ public class KafkaListeners {
 
     @KafkaListener(topics = "user-register-topics")
     public void handle(UserRegisterEvent event){
-        LOGGER.info("Received event {}", event.getFirstName());
+        LOGGER.info("Received event {}", event.getUserId());
 
         groupService.addUserToDefaultGroup(event.getUserId(), "New Users");
     }

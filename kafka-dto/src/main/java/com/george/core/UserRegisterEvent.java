@@ -10,7 +10,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserRegisterEvent {
     private Long userId;
-    private String firstName;
-    private String lastName;
-    private String email;
 }

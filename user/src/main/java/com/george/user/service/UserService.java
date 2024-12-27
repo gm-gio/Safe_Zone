@@ -13,12 +13,16 @@ public interface UserService {
     @Transactional
     UserResponse registerUser(UserRequest request);
 
-
+    @Transactional
     UserResponse updateUser(Long userId, UserRequest request);
 
+
     @Transactional(readOnly = true)
-    List<User> getAllUsers();
+    List<UserResponse> getAllUsers();
 
     @Transactional(readOnly = true)
     UserResponse getUserById(Long userId);
+
+    @Transactional
+    void deleteById(Long userId);
 }

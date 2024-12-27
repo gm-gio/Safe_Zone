@@ -6,8 +6,6 @@ import lombok.*;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserResponse {
     private Long userId;
     private String firstName;
