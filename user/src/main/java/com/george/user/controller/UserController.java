@@ -18,7 +18,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/users")
-public class  UserController {
+public class UserController {
 
     private final UserService userService;
 
@@ -36,7 +36,7 @@ public class  UserController {
             @PathVariable Long userId,
             @RequestBody UserRequest request) {
 
-        return ResponseEntity.status(OK).body(userService.updateUser(userId,request));
+        return ResponseEntity.status(OK).body(userService.updateUser(userId, request));
     }
 
     @GetMapping("/")
@@ -52,10 +52,10 @@ public class  UserController {
         return ResponseEntity.status(OK).body(userService.getUserById(userId));
     }
 
-   @DeleteMapping("/userId")
-   @Operation(summary = "delete a User by ID")
-   public ResponseEntity<Void> deleteById(@PathVariable Long userId){
-       userService.deleteById(userId);
-       return ResponseEntity.noContent().build();
-   }
+    @DeleteMapping("/{userId}")
+    @Operation(summary = "delete a User by ID")
+    public ResponseEntity<Void> deleteById(@PathVariable Long userId) {
+        userService.deleteById(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

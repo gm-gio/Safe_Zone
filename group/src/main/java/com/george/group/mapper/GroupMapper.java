@@ -4,11 +4,13 @@ import com.george.group.dto.GroupRequest;
 import com.george.group.dto.GroupResponse;
 import com.george.group.entity.Group;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface GroupMapper {
 
-    GroupResponse toResponse(Group group);
+    GroupResponse mapToResponse(Group group);
 
-    Group toEntity(GroupRequest groupRequest);
+    @Mapping(target = "groupId", ignore = true)
+    Group mapToEntity(GroupRequest groupRequest);
 }

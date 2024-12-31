@@ -1,5 +1,5 @@
-CREATE TABLE users (
-    user_id BIGSERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS users (
+    user_id SERIAL PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE users (
 INSERT INTO users (first_name, last_name, email, phone, password_hash, user_role)
 VALUES
     ('John', 'Doe', 'john.doe@example.com', '123-456-7890', 'hashed_password_1', 'USER'),
-    ('Jane', 'Smith', 'jane.smith@example.com', '123-456-7891', 'hashed_password_2', 'ADMIN'),
+    ('George', 'Meshveliani', 'giorgimeshve@gmail.com', '123-456-7891', 'hashed_password_2', 'ADMIN'),
     ('Mark', 'Johnson', 'mark.johnson@example.com', '123-456-7892', 'hashed_password_3', 'USER'),
     ('Emily', 'Davis', 'emily.davis@example.com', '123-456-7893', 'hashed_password_4', 'USER'),
     ('Michael', 'Brown', 'michael.brown@example.com', '123-456-7894', 'hashed_password_5', 'USER''),

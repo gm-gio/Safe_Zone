@@ -9,13 +9,14 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Builder
-@ToString
+
 @Setter
 @Getter
+@Entity
+@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "groups")
 public class Group {
     @Id

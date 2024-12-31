@@ -7,6 +7,7 @@ import com.george.user.dto.UserResponse;
 import com.george.user.entity.UserRole;
 import com.george.user.exception.UserNotFoundException;
 import com.george.user.exception.UserRegistrationException;
+import com.george.user.exception.UserRequestException;
 import com.george.user.mapper.UserMapper;
 import com.george.user.repository.UserRepository;
 import com.george.user.service.UserService;
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService {
             Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
 
             if (existingUser.isPresent()) {
-                throw new UserRegistrationException("User already exists");
+                throw new UserRequestException("User with Email: " + request.getEmail() + "already exists");
             }
 
             User user = mapper.mapToEntity(request);
