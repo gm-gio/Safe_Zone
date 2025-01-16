@@ -12,12 +12,13 @@
     <!-- FIXME change it to the project's website -->
     <url>https://github.com/gm-gio/Safe_Zone.git</url>
     <modules>
-        <module>user</module>
-        <module>group</module>
-        <module>clients</module>
-        <module>eureka_server</module>
-        <module>api_gateway</module>
+        <module>user-service</module>
+        <module>group-service</module>
+        <module>feign-client</module>
+        <module>eureka-server</module>
+        <module>api-gateway</module>
         <module>kafka-dto</module>
+        <module>notification-service</module>
     </modules>
 
     <properties>
@@ -89,6 +90,13 @@
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>1.8.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>10.6.4</version>
+        </dependency>
+
 
 
 
