@@ -27,7 +27,7 @@ public class NotificationController {
 
     @PostMapping("/send/{userId}/{notificationId}")
     @Operation(summary = "send a Notification to User")
-    public ResponseEntity<String> sendSms(@PathVariable Long userId, @PathVariable Long notificationId) {
+    public ResponseEntity<String> sendNotification(@PathVariable Long userId, @PathVariable Long notificationId) {
         NotificationResponse response = notificationService.sendNotification(userId, notificationId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

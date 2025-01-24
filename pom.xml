@@ -19,6 +19,7 @@
         <module>api-gateway</module>
         <module>kafka-dto</module>
         <module>notification-service</module>
+        <module>template-service</module>
     </modules>
 
     <properties>
