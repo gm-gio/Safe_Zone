@@ -1,53 +1,165 @@
+
 services:
-  postgres:
-    container_name: postgres
-    image: postgres
+  group-service-postgres:
+    container_name: group-service-postgres
+    hostname: group-service-postgres
+    image: postgres:15-alpine
+    restart: always
+    ports:
+      - '5433:5432'
     environment:
+      POSTGRES_DB: group
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1111
-      PGDATA: /data/postgres
+      PGDATA: /data
     volumes:
-      - postgres:/data/postgres
+      - db-postgres-group:/data
+
+  notification-service-postgres:
+    container_name: notification-service-postgres
+    hostname: notification-service-postgres
+    image: postgres:15-alpine
+    restart: always
     ports:
-      - "5432:5432"
-    networks:
-      - postgres
-    restart: unless-stopped
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
+      - '5434:5432'
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      POSTGRES_DB: notification
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1111
+      PGDATA: /data
     volumes:
-      - pgadmin:/var/lib/pgadmin
+      - db-postgres-notification:/data
+
+  template-service-postgres:
+    container_name: template-service-postgres
+    hostname: template-service-postgres
+    image: postgres:15-alpine
+    restart: always
     ports:
-      - "5050:80"
-    networks:
-      - postgres
-    restart: unless-stopped
-  zipkin:
-    image: openzipkin/zipkin
-    container_name: zipkin
+      - '5435:5432'
+    environment:
+      POSTGRES_DB: template
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1111
+      PGDATA: /data
+    volumes:
+      - db-postgres-template:/data
+
+  user-service-postgres:
+    container_name: user-service-postgres
+    hostname: user-service-postgres
+    image: postgres:15-alpine
+    restart: always
     ports:
-      - "9411:9411"
-    networks:
-      - spring
-  rabbitmq:
-    image: rabbitmq:3.9.11-management-alpine
-    container_name: rabbitmq
+      - '5436:5432'
+    environment:
+      POSTGRES_DB: user
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1111
+      PGDATA: /data
+    volumes:
+      - db-postgres-user:/data
+
+  # Kafka and Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.2
+    container_name: kafka
     ports:
-      - "5672:5672"
-      - "15672:15672"
-    networks:
-      - spring
-networks:
-  postgres:
-    driver: bridge
-  spring:
-    driver: bridge
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  # Eureka Server
+  eureka-server:
+    image: eureka-server:1.0-SNAPSHOT
+    ports:
+      - "8761:8761"
+    restart: always
+
+  api-gateway:
+    image: api-gateway:1.0-SNAPSHOT
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - eureka-server
+
+  # User Service
+  user-service:
+    image: user-service:1.0-SNAPSHOT
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - eureka-server
+      - api-gateway
+      - kafka
+      - user-service-postgres
+      - zookeeper
+
+
+  # Group Service
+  group-service:
+    image: group-service:1.0-SNAPSHOT
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - eureka-server
+      - api-gateway
+      - kafka
+      - group-service-postgres
+      - zookeeper
+
+
+  # Notification Service
+  notification-service:
+    image: notification-service:1.0-SNAPSHOT
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - api-gateway
+      - eureka-server
+      - kafka
+      - notification-service-postgres
+      - zookeeper
+
+
+  # Template Service
+  template-service:
+    image: template-service:1.0-SNAPSHOT
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - api-gateway
+      - eureka-server
+      - kafka
+      - template-service-postgres
+      - zookeeper
+
+
+
 
 volumes:
-  postgres:
-  pgadmin:
+  db-postgres-group: { }
+  db-postgres-notification: { }
+  db-postgres-template: { }
+  db-postgres-user: { }

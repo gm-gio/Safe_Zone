@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class TemplateServiceServiceImpl implements TemplateService {
+public class TemplateServiceImpl implements TemplateService {
 
     private final TemplateRepository templateRepository;
     private final TemplateMapper mapper;

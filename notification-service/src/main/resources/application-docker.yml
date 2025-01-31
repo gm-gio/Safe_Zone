@@ -1,0 +1,13 @@
+server:
+  port: 1004
+
+spring:
+  datasource:
+    url: jdbc:postgresql://notification-service-postgres:5432/notification
+  kafka:
+    bootstrap-servers: kafka:29092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka

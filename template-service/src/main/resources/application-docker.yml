@@ -1,0 +1,13 @@
+server:
+  port: 1002
+
+spring:
+  datasource:
+    url: jdbc:postgresql://template-service-postgres:5432/template
+  kafka:
+    bootstrap-servers: kafka:29092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
