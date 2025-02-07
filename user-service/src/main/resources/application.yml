@@ -23,6 +23,8 @@ spring:
      partitions: 3
      topics:
        user-register: user-register-topics
+       user-remove: user-remove-topics
+       user-update: user-update-topics
 
 
 eureka:

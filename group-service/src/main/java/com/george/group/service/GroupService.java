@@ -7,14 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface GroupService {
-    @Transactional
-    void addNewUserToDefaultGroup(Long userId, String groupName);
-
-    @Transactional
-    GroupResponse addUserToGroup(Long groupId, Long userId);
-
-    @Transactional
-    GroupResponse removeUserFromGroup(Long groupId, Long userId);
 
     @Transactional(readOnly = true)
     GroupResponse getById(Long groupId);

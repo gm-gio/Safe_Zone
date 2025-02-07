@@ -27,13 +27,8 @@ public class Group {
 
     private String groupDescription;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(
-            name = "group_user",
-            joinColumns = @JoinColumn(name = "group_id", nullable = false)
-    )
-    @Column(name = "user_id")
-    private Set<Long> userId = new HashSet<>();
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Set<GroupUser> users = new HashSet<>();
 
 
     @Override

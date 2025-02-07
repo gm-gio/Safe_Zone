@@ -25,51 +25,6 @@ public class GroupServiceImpl implements GroupService {
     private final GroupMapper mapper;
 
 
-    @Transactional
-    @Override
-    public void addNewUserToDefaultGroup(Long userId, String groupName) {
-        Group group = groupRepository.findByGroupName(groupName)
-                .orElseThrow(() -> new GroupNotFoundException("Group with name " + groupName + " not found"));
-
-        group.getUserId().add(userId);
-        groupRepository.save(group);
-    }
-
-
-    @Transactional
-    @Override
-    public GroupResponse addUserToGroup(Long groupId, Long userId) {
-
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group with ID " + groupId + " not found"));
-
-        if (group.getUserId().contains(userId)) {
-            throw new IllegalArgumentException("User with ID " + userId + " is already in the group");
-        }
-
-
-        group.getUserId().add(userId);
-        Group updatedGroup = groupRepository.save(group);
-
-        return mapper.mapToResponse(updatedGroup);
-    }
-
-    @Transactional
-    @Override
-    public GroupResponse removeUserFromGroup(Long groupId, Long userId) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Group with ID:" + groupId + "not found"));
-
-        if (group.getUserId().contains(userId)) {
-            group.getUserId().remove(userId);
-            groupRepository.save(group);
-            log.info("User with ID {} has been removed from Group with ID {}", userId, groupId);
-        } else {
-            log.warn("User with ID {} is not a member of Group with ID {}", userId, groupId);
-        }
-        return mapper.mapToResponse(group);
-    }
-
     @Transactional(readOnly = true)
     @Override
     public GroupResponse getById(Long groupId) {

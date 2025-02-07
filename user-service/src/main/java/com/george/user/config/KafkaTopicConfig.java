@@ -15,9 +15,30 @@ public class KafkaTopicConfig {
     @Value("${spring.kafka.topics.user-register}")
     private String userRegisterTopic;
 
+    @Value("${spring.kafka.topics.user-remove}")
+    private String userRemoveTopic;
+
+    @Value("${spring.kafka.topics.user-update}")
+    private String userUpdateTopic;
+
+
     @Bean
-    NewTopic createTopic(){
+    NewTopic userRegisterTopic(){
         return TopicBuilder.name(userRegisterTopic)
+                .partitions(partitions)
+                .build();
+    }
+
+    @Bean
+    NewTopic userRemoveTopic(){
+        return TopicBuilder.name(userRemoveTopic)
+                .partitions(partitions)
+                .build();
+    }
+
+    @Bean
+    NewTopic userUpdateTopic(){
+        return TopicBuilder.name(userUpdateTopic)
                 .partitions(partitions)
                 .build();
     }

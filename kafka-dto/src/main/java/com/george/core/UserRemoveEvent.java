@@ -1,6 +1,5 @@
 package com.george.core;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,10 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRegisterEvent {
+public class UserRemoveEvent {
     private Long userId;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phone;
 }

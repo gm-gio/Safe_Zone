@@ -4,6 +4,7 @@ package com.george.group.controller;
 import com.george.group.dto.GroupRequest;
 import com.george.group.dto.GroupResponse;
 import com.george.group.service.GroupService;
+import com.george.group.service.GroupUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,20 +22,21 @@ import static org.springframework.http.HttpStatus.OK;
 public class GroupController {
 
     private final GroupService groupService;
+    private final GroupUserService groupUserService;
 
 
     @PostMapping("/{groupId}/users/{userId}")
     @Operation(summary = "add User to a Group")
     public ResponseEntity<GroupResponse> addUserToGroup(@PathVariable Long groupId, @PathVariable Long userId) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(groupService.addUserToGroup(groupId, userId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(groupUserService.addUserToGroup(groupId, userId));
     }
 
     @DeleteMapping("/{groupId}/users/{userId}")
     @Operation(summary = "Remove User from Group")
     public ResponseEntity<GroupResponse> removeUserFromGroup(@PathVariable Long groupId, @PathVariable Long userId) {
-        groupService.removeUserFromGroup(groupId, userId);
-        return ResponseEntity.status(OK).body(groupService.removeUserFromGroup(groupId, userId));
+        groupUserService.removeUserFromGroup(groupId, userId);
+        return ResponseEntity.status(OK).body(groupUserService.removeUserFromGroup(groupId, userId));
     }
 
     @GetMapping("/{groupId}")

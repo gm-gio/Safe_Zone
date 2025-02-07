@@ -5,10 +5,8 @@ CREATE TABLE IF NOT EXISTS groups (
 );
 
 
-CREATE TABLE IF NOT EXISTS group_user (
-    group_user_id SERIAL PRIMARY KEY,
-    group_id INT NOT NULL,
-    user_id BIGINT NOT NULL
+CREATE TABLE IF NOT EXISTS group_users (
+
 );
 
 INSERT INTO groups (group_name, group_description)

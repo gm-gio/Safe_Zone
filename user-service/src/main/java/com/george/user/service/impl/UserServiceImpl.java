@@ -1,6 +1,8 @@
 package com.george.user.service.impl;
 
 import com.george.core.UserRegisterEvent;
+import com.george.core.UserRemoveEvent;
+import com.george.core.UserUpdateEvent;
 import com.george.user.dto.UserRequest;
 
 import com.george.user.dto.UserResponse;
@@ -28,12 +30,19 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final KafkaTemplate<String, UserRegisterEvent> kafkaTemplate;
+    private final KafkaTemplate<String, UserRegisterEvent> userRegisterKafkaTemplate;
+    private final KafkaTemplate<String, UserUpdateEvent> userUpdateKafkaTemplate;
+    private final KafkaTemplate<String, UserRemoveEvent> userRemoveKafkaTemplate;
     private final UserMapper mapper;
 
     @Value("${spring.kafka.topics.user-register}")
     private String userRegisterTopic;
 
+    @Value("${spring.kafka.topics.user-remove}")
+    private String userRemoveTopic;
+
+    @Value("${spring.kafka.topics.user-update}")
+    private String userUpdateTopic;
 
     @Override
     @Transactional
@@ -61,9 +70,13 @@ public class UserServiceImpl implements UserService {
 
     private void sendUserRegistrationEvent(User user) {
         UserRegisterEvent event = new UserRegisterEvent(
-                user.getUserId()
+                user.getUserId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getPhone()
         );
-        kafkaTemplate.send(userRegisterTopic, event);
+        userRegisterKafkaTemplate.send(userRegisterTopic, event);
     }
 
     @Transactional
@@ -77,9 +90,12 @@ public class UserServiceImpl implements UserService {
         user.setPhone(request.getPhone());
 
         User updatedUser = userRepository.save(user);
+
+        UserUpdateEvent event = new UserUpdateEvent(user.getUserId(), user.getFirstName(), user.getLastName(), user.getPhone());
+        userUpdateKafkaTemplate.send(userUpdateTopic, event);
+
         return mapper.mapToResponse(updatedUser);
     }
-
 
 
     @Override
@@ -107,6 +123,10 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+        UserRemoveEvent event = new UserRemoveEvent(user.getUserId());
+
+        userRemoveKafkaTemplate.send(userRemoveTopic, event);
 
         userRepository.delete(user);
     }
