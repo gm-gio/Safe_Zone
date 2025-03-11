@@ -3,6 +3,7 @@ package com.george.group.controller;
 
 import com.george.group.dto.GroupRequest;
 import com.george.group.dto.GroupResponse;
+import com.george.group.dto.GroupUserResponse;
 import com.george.group.service.GroupService;
 import com.george.group.service.GroupUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,4 +70,12 @@ public class GroupController {
     public ResponseEntity<List<GroupResponse>> getAll() {
         return ResponseEntity.status(OK).body(groupService.getAll());
     }
+
+
+    @GetMapping("/{groupId}/users")
+    @Operation(summary = "get users from group")
+    public List<GroupUserResponse> getUsersByGroupId(@PathVariable Long groupId) {
+        return groupUserService.getUsersByGroupId(groupId);
+    }
+
 }

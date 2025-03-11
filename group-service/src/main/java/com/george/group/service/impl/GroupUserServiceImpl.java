@@ -6,6 +6,7 @@ import com.george.core.UserRegisterEvent;
 import com.george.core.UserRemoveEvent;
 import com.george.core.UserUpdateEvent;
 import com.george.group.dto.GroupResponse;
+import com.george.group.dto.GroupUserResponse;
 import com.george.group.entity.Group;
 import com.george.group.entity.GroupUser;
 import com.george.group.exception.GroupNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -145,4 +147,23 @@ public class GroupUserServiceImpl implements GroupUserService {
 
         log.info("User with userId: {} removed from all groups.", event.getUserId());
     }
+
+    @Transactional
+    @Override
+    public List<GroupUserResponse> getUsersByGroupId(Long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException("Group with ID " + groupId + " not found"));
+
+
+        return group.getUsers().stream()
+                .map(user -> GroupUserResponse.builder()
+                        .userId(user.getUserId())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }

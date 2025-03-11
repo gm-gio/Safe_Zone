@@ -4,7 +4,11 @@ import com.george.core.UserRegisterEvent;
 import com.george.core.UserRemoveEvent;
 import com.george.core.UserUpdateEvent;
 import com.george.group.dto.GroupResponse;
+import com.george.group.dto.GroupUserResponse;
+
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public interface GroupUserService {
     @Transactional
@@ -21,4 +25,7 @@ public interface GroupUserService {
 
     @Transactional
     void removeUserFromAllGroups(UserRemoveEvent event);
+
+    @Transactional
+    List<GroupUserResponse> getUsersByGroupId(Long groupId);
 }

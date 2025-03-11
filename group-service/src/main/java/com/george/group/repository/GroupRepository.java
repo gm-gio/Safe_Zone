@@ -12,4 +12,6 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     Optional<Group> findByGroupName(String groupName);
 
     List<Group> findByUsers_UserId(Long userId);
+
+    boolean existsByGroupName(String newUsers);
 }
