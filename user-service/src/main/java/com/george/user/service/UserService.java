@@ -25,4 +25,6 @@ public interface UserService {
 
     @Transactional
     void deleteById(Long userId);
+
+    boolean isUserExistsByEmail(String email);
 }

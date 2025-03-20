@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final KafkaTemplate<String, UserUpdateEvent> userUpdateKafkaTemplate;
     private final KafkaTemplate<String, UserRemoveEvent> userRemoveKafkaTemplate;
     private final UserMapper mapper;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Value("${spring.kafka.topics.user-register}")
     private String userRegisterTopic;
@@ -54,7 +56,10 @@ public class UserServiceImpl implements UserService {
                 throw new UserRequestException("User with Email: " + request.getEmail() + "already exists");
             }
 
+            String hashedPassword = passwordEncoder.encode(request.getPasswordHash());
+
             User user = mapper.mapToEntity(request);
+            user.setPasswordHash(hashedPassword);
             user.setUserRole(UserRole.USER);
 
             User savedUser = userRepository.save(user);
@@ -130,4 +135,11 @@ public class UserServiceImpl implements UserService {
 
         userRepository.delete(user);
     }
+
+    @Override
+    public boolean isUserExistsByEmail(String email) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        return existingUser.isPresent();
+    }
+
 }

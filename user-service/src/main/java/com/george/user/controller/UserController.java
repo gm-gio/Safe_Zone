@@ -58,4 +58,10 @@ public class UserController {
         userService.deleteById(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/exists")
+    public ResponseEntity<Boolean> checkUserExistsByEmail(@RequestParam String email) {
+        boolean exists = userService.isUserExistsByEmail(email);
+        return ResponseEntity.ok(exists);
+    }
 }

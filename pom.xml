@@ -20,6 +20,7 @@
         <module>kafka-dto</module>
         <module>notification-service</module>
         <module>template-service</module>
+        <module>file-service</module>
     </modules>
 
     <properties>
@@ -97,8 +98,6 @@
             <artifactId>twilio</artifactId>
             <version>10.6.4</version>
         </dependency>
-
-
 
 
     </dependencies>
