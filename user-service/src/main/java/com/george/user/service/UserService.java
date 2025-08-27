@@ -27,4 +27,6 @@ public interface UserService {
     void deleteById(Long userId);
 
     boolean isUserExistsByEmail(String email);
+
+    List<Long> getAllUserIds();
 }

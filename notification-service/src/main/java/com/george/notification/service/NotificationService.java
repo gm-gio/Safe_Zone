@@ -7,7 +7,11 @@ public interface NotificationService {
 
     NotificationResponse createNotification(NotificationRequest request);
 
-    NotificationResponse sendNotification(Long userId, Long notificationId);
+    String sendNotifications(Long notificationId);
+
+    NotificationResponse setNotificationAsPending(Long notificationId);
+
+    NotificationResponse sendNotificationToUser(Long userId, Long notificationId);
 
 
     NotificationResponse sendNotificationToGroup(Long groupId, Long notificationId);

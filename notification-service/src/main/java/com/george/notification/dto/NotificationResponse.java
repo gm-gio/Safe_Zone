@@ -13,6 +13,8 @@ public class NotificationResponse {
     private  Long notificationId;
     private Long userId;
     private Long templateId;
+    private Long groupId;
+    private String credential;
     private NotificationType type;
     private NotificationStatus status;
     private Integer retryAttempts;

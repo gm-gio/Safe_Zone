@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 public class NotificationRequest {
     private Long userId;
     private Long templateId;
+    private Long groupId;
+    private String credential;
     private NotificationType type;
     private NotificationStatus status;
     private Integer retryAttempts;

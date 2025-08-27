@@ -20,4 +20,7 @@ public interface UserClient {
 
     @GetMapping("/api/v1/users/exists")
     ResponseEntity<Boolean> checkUserExistsByEmail(@RequestParam String email);
+
+    @GetMapping("/api/v1/users/ids")
+    List<Long> getUserIds();
 }

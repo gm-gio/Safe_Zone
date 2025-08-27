@@ -142,4 +142,10 @@ public class UserServiceImpl implements UserService {
         return existingUser.isPresent();
     }
 
+
+    @Override
+    public List<Long> getAllUserIds() {
+        return userRepository.findAllUserIds();
+    }
+
 }

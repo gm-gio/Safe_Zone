@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
@@ -25,10 +26,17 @@ public class NotificationController {
         return ResponseEntity.status(CREATED).body(notificationService.createNotification(request));
     }
 
-    @PostMapping("/send/{userId}/{notificationId}")
+    @PostMapping("/send/{notificationId}")
+    @Operation(summary = "send a Notification all users")
+    public ResponseEntity<String> send(@PathVariable Long notificationId){
+
+        return ResponseEntity.status(HttpStatus.OK).body(notificationService.sendNotifications(notificationId));
+    }
+
+    @PostMapping("/sendToUser/{userId}/{notificationId}")
     @Operation(summary = "send a Notification to User")
     public ResponseEntity<String> sendNotification(@PathVariable Long userId, @PathVariable Long notificationId) {
-        NotificationResponse response = notificationService.sendNotification(userId, notificationId);
+        NotificationResponse response = notificationService.sendNotificationToUser(userId, notificationId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

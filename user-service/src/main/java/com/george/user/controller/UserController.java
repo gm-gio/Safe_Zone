@@ -64,4 +64,10 @@ public class UserController {
         boolean exists = userService.isUserExistsByEmail(email);
         return ResponseEntity.ok(exists);
     }
+
+    @GetMapping("/ids")
+    @Operation(summary = "Get Users Ids")
+    public List<Long> getUserIds() {
+        return userService.getAllUserIds();
+    }
 }

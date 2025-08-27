@@ -35,6 +35,8 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     NotificationType type;
+    String credential;
+
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

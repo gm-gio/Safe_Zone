@@ -18,5 +18,6 @@ public interface NotificationMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "templateId", source = "notification.templateId")
     @Mapping(target = "userId", source = "notification.userId")
+    @Mapping(target = "groupId", source = "notification.groupId")
     NotificationHistory mapToHistory(Notification notification);
 }
