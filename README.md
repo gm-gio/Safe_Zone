@@ -39,7 +39,7 @@ importing data from:
   addresses in xlsx file, the last appearance will always overwrite all previous)
 
 ## Architecture Diagram
-
+![](images/architecture-diagram.png)
 ##
 
 ### Scalability / Low Latency
