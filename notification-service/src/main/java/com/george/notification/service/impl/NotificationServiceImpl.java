@@ -63,40 +63,40 @@ public class NotificationServiceImpl implements NotificationService {
     private String userListRoutingTopic;
 
     @Override
-    public NotificationResponse createNotification(NotificationRequest request) {
+    public String distributeNotifications(Long templateId) {
+        List<Long> userIds = userClient.getUserIds();
+        if (userIds == null || userIds.isEmpty()) {
+            throw new UsersNotFoundException("users.not_found");
+        }
+
+        TemplateResponse templateResponse = templateClient.getTemplateById(templateId);
+        if (templateResponse == null) {
+            throw new NotificationNotFoundException("Template not found");
+        }
+
+        for (List<Long> batch : splitUsers(userIds)) {
+            UserListKafka listKafka = new UserListKafka(templateResponse, batch);
+            kafkaTemplate.send(userListRoutingTopic, listKafka);
+        }
+
+        return "Notification sent successfully";
+    }
+
+
+
+    @Override
+    public NotificationResponse createAndSetPending(NotificationRequest request) {
 
         return Optional.of(request)
                 .map(mapper::mapToEntity)
+                .map(notification -> notification.addTemplateHistory(request.getTemplateId()))
                 .map(notificationRepository::saveAndFlush)
                 .map(mapper::mapToResponse)
                 .orElseThrow(() -> new NotificationCreationException("Failed to create notification"));
     }
 
-    @Override
-    public String sendNotifications(Long templateId) {
-
-        List<Long> userIds = userClient.getUserIds();
-
-        if (userIds == null) {
-            throw new UsersNotFoundException("users.not_found");
-
-        }
-
-        TemplateResponse templateResponse = templateClient.getTemplateById(templateId);
 
 
-        if (templateResponse == null) {
-            throw new NotificationNotFoundException("Template not found");
-        }
-
-        for (List<Long> users : splitUsers(userIds)) {
-            UserListKafka listKafka = new UserListKafka(templateResponse, users);
-            kafkaTemplate.send(userListRoutingTopic, listKafka);
-        }
-
-        return "Notification sent successfully";
-
-    }
 
     @Override
     public NotificationResponse setNotificationAsPending(Long notificationId) {

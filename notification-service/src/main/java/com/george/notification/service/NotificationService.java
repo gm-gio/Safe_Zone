@@ -5,9 +5,9 @@ import com.george.notification.dto.NotificationResponse;
 
 public interface NotificationService {
 
-    NotificationResponse createNotification(NotificationRequest request);
+    NotificationResponse createAndSetPending(NotificationRequest request);
 
-    String sendNotifications(Long notificationId);
+    String distributeNotifications(Long notificationId);
 
     NotificationResponse setNotificationAsPending(Long notificationId);
 

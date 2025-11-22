@@ -32,6 +32,7 @@ public class Notification {
     private Long userId;
     private Long templateId;
     private Long groupId;
+    private Long templateHistoryId;
 
     @Enumerated(EnumType.STRING)
     NotificationType type;
@@ -61,4 +62,11 @@ public class Notification {
     public int hashCode() {
         return Objects.hash(notificationId);
     }
+
+    public Notification addTemplateHistory(Long templateHistoryId) {
+        setTemplateHistoryId(templateHistoryId);
+        return this;
+    }
+
+
 }

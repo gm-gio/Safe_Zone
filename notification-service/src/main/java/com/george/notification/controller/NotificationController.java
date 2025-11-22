@@ -4,13 +4,13 @@ import com.george.notification.dto.NotificationRequest;
 import com.george.notification.dto.NotificationResponse;
 import com.george.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
@@ -23,14 +23,22 @@ public class NotificationController {
     @PostMapping("/new")
     @Operation(summary = "create a Notification")
     public ResponseEntity<NotificationResponse> createNotification(@RequestBody NotificationRequest request) {
-        return ResponseEntity.status(CREATED).body(notificationService.createNotification(request));
+        return ResponseEntity.status(CREATED).body(notificationService.createAndSetPending(request));
     }
 
-    @PostMapping("/send/{notificationId}")
-    @Operation(summary = "send a Notification all users")
-    public ResponseEntity<String> send(@PathVariable Long notificationId){
 
-        return ResponseEntity.status(HttpStatus.OK).body(notificationService.sendNotifications(notificationId));
+
+    @Operation(
+            summary = "Send notifications",
+            description = "Creates notifications for multiple users based on the given template and sends them to the Kafka queue"
+    )
+    @PostMapping("/send/{templateId}")
+    public ResponseEntity<String> sendNotifications(
+            @Parameter(description = "ID of the notification template", required = true)
+            @PathVariable Long templateId
+    ) {
+        String result = notificationService.distributeNotifications(templateId);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/sendToUser/{userId}/{notificationId}")

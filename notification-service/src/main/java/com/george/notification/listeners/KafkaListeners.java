@@ -39,12 +39,13 @@ public class KafkaListeners {
     @Value("${spring.kafka.topics.phone}")
     private String phoneTopic;
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 
     @KafkaListener(
             topics = "${spring.kafka.topics.router}",
-            groupId = "emergency-notifications"
+            groupId = "emergency-notifications",
+            containerFactory = "kafkaListenerContainerFactory"
     )
 
     private void listener(UserListKafka userListKafka) {
@@ -93,7 +94,7 @@ public class KafkaListeners {
         if (credential != null) {
             Long notificationId;
             try {
-                notificationId = notificationService.createNotification( // TODO: mapper
+                notificationId = notificationService.createAndSetPending( // TODO: mapper
                         NotificationRequest.builder()
                                 .type(type)
                                 .userId(userResponse.getUserId())
