@@ -21,6 +21,9 @@
         <module>notification-service</module>
         <module>template-service</module>
         <module>file-service</module>
+        <module>rebalancer</module>
+        <module>sender</module>
+        <module>url-shortener</module>
     </modules>
 
     <properties>

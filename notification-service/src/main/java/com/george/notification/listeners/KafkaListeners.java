@@ -1,13 +1,15 @@
 package com.george.notification.listeners;
 
 import com.george.clients.template.TemplateResponse;
+import com.george.clients.urlShortener.ShortenerClient;
+import com.george.clients.urlShortener.UrlsResponse;
 import com.george.clients.user.UserClient;
 import com.george.clients.user.UserResponse;
 
 import com.george.core.UserListKafka;
-import com.george.notification.dto.NotificationKafka;
-import com.george.notification.dto.NotificationRequest;
-import com.george.notification.dto.NotificationResponse;
+import com.george.notification.dto.kafka.NotificationKafka;
+import com.george.notification.dto.request.NotificationRequest;
+import com.george.notification.dto.response.NotificationResponse;
 import com.george.notification.enums.NotificationType;
 import com.george.notification.mapper.NotificationMapper;
 import com.george.notification.service.NotificationService;
@@ -18,6 +20,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,6 +34,7 @@ public class KafkaListeners {
     private final NotificationService notificationService;
     private final UserClient userClient;
     private final NotificationMapper mapper;
+    private final ShortenerClient shortenerClient;
 
 
     @Value("${spring.kafka.topics.email}")
@@ -70,8 +74,11 @@ public class KafkaListeners {
                     continue;
                 }
 
-                sendNotificationByCredential(response::getEmail, NotificationType.EMAIL, response, templateResponse, emailTopic);
-                sendNotificationByCredential(response::getPhone, NotificationType.PHONE, response, templateResponse, phoneTopic);
+                UrlsResponse urlResponse = shortenerClient.generate(templateResponse.getTemplateId()).getBody();
+
+
+                sendNotificationByCredential(response::getEmail, NotificationType.EMAIL, response, templateResponse, emailTopic, urlResponse);
+                sendNotificationByCredential(response::getPhone, NotificationType.PHONE, response, templateResponse, phoneTopic, urlResponse);
 
 
             }
@@ -81,43 +88,35 @@ public class KafkaListeners {
     }
 
 
-    private void sendNotificationByCredential( // TODO: too many params
-                                               Supplier<String> supplier,
-                                               NotificationType type,
-                                               UserResponse userResponse,
-                                               TemplateResponse templateResponse,
-                                               String topic
-    ) {
-
+    private void sendNotificationByCredential(Supplier<String> supplier,
+                                              NotificationType type,
+                                              UserResponse userResponse,
+                                              TemplateResponse templateResponse,
+                                              String topic,
+                                              UrlsResponse urlResponse) {
         String credential = supplier.get();
-
         if (credential != null) {
             Long notificationId;
+
             try {
-                notificationId = notificationService.createAndSetPending( // TODO: mapper
+                notificationId = notificationService.createNotification(
                         NotificationRequest.builder()
                                 .type(type)
                                 .userId(userResponse.getUserId())
                                 .templateId(templateResponse.getTemplateId())
                                 .credential(credential)
+                                .createdAt(LocalDateTime.now())
+                                .retryAttempts(0)
+                                .urlId(urlResponse.getUrlId())
                                 .build()
                 ).getNotificationId();
             } catch (EntityNotFoundException e) {
-                // TODO
                 return;
             }
-            NotificationResponse response = notificationService.setNotificationAsPending(notificationId);
-            NotificationKafka notificationKafka = NotificationKafka.builder()
-                    .id(response.getNotificationId())
-                    .type(response.getType())
-                    .credential(response.getCredential())
-                    .status(response.getStatus())
-                    .retryAttempts(response.getRetryAttempts())
-                    .userId(response.getUserId())
-                    .build();
+            NotificationResponse notificationResponse = notificationService.setNotificationAsPending(notificationId);
+            NotificationKafka notificationKafka = mapper.mapToKafka(notificationResponse, urlResponse.getUrlOptionMap());
 
             kafkaTemplate.send(topic, notificationKafka);
-
         }
 
 

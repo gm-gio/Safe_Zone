@@ -27,3 +27,7 @@ spring:
           uri: lb://FILE-SERVICE
           predicates:
             - Path=/api/v1/files/**
+        - id: UrlShortener_Service
+          uri: lb://UrlShortener-SERVICE
+          predicates:
+            - Path=/api/v1/files/**

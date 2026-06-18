@@ -1,4 +1,4 @@
-package com.george.notification.dto;
+package com.george.notification.dto.response;
 
 import com.george.notification.enums.NotificationStatus;
 import com.george.notification.enums.NotificationType;
@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class NotificationRequest {
+public class NotificationResponse {
+    private  Long notificationId;
     private Long userId;
     private Long templateId;
     private Long groupId;

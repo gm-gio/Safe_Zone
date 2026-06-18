@@ -31,6 +31,7 @@ public class NotificationHistory {
     private Long userId;
     private Long templateId;
     private Long groupId;
+    private Long urlId;
 
 
     @Enumerated(EnumType.STRING)

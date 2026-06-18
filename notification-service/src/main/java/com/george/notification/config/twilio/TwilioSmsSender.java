@@ -1,7 +1,6 @@
 package com.george.notification.config.twilio;
 
 import com.george.clients.user.UserResponse;
-import com.george.notification.dto.NotificationRequest;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;

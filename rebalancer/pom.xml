@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>notification-service</artifactId>
+    <artifactId>rebalancer</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -17,8 +17,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-
     <dependencies>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -55,7 +55,10 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.george</groupId>
             <artifactId>kafka-dto</artifactId>

@@ -1,7 +1,7 @@
 package com.george.notification.controller;
 
-import com.george.notification.dto.NotificationRequest;
-import com.george.notification.dto.NotificationResponse;
+import com.george.notification.dto.request.NotificationRequest;
+import com.george.notification.dto.response.NotificationResponse;
 import com.george.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +23,7 @@ public class NotificationController {
     @PostMapping("/new")
     @Operation(summary = "create a Notification")
     public ResponseEntity<NotificationResponse> createNotification(@RequestBody NotificationRequest request) {
-        return ResponseEntity.status(CREATED).body(notificationService.createAndSetPending(request));
+        return ResponseEntity.status(CREATED).body(notificationService.createNotification(request));
     }
 
 

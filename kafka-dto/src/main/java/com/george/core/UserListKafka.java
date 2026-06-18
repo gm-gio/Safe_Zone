@@ -15,6 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserListKafka {
-    TemplateResponse templateResponse;
+    private TemplateResponse templateResponse;
     private List<Long> userIds;
 }

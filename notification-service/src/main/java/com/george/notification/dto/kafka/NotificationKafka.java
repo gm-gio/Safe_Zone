@@ -1,4 +1,4 @@
-package com.george.notification.dto;
+package com.george.notification.dto.kafka;
 
 import com.george.notification.enums.NotificationStatus;
 import com.george.notification.enums.NotificationType;
@@ -12,12 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NotificationKafka {
-    Long id;
-    NotificationType type;
-    String credential;
-    NotificationStatus status;
-    Integer retryAttempts;
-    Long userId;
-
+    private Long id;
+    private NotificationType type;
+    private String credential;
+    private NotificationStatus status;
+    private Integer retryAttempts;
+    private Long userId;
 
 }

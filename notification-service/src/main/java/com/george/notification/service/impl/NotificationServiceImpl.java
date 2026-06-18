@@ -8,8 +8,8 @@ import com.george.clients.user.UserClient;
 import com.george.clients.user.UserResponse;
 import com.george.core.UserListKafka;
 import com.george.notification.config.twilio.SmsSender;
-import com.george.notification.dto.NotificationRequest;
-import com.george.notification.dto.NotificationResponse;
+import com.george.notification.dto.request.NotificationRequest;
+import com.george.notification.dto.response.NotificationResponse;
 import com.george.notification.entity.Notification;
 import com.george.notification.entity.NotificationHistory;
 import com.george.notification.enums.NotificationStatus;
@@ -85,33 +85,39 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
-    public NotificationResponse createAndSetPending(NotificationRequest request) {
+    public NotificationResponse createNotification(NotificationRequest request) {
 
         return Optional.of(request)
                 .map(mapper::mapToEntity)
-                .map(notification -> notification.addTemplateHistory(request.getTemplateId()))
+                .map(notification -> notification.addTemplateId(request.getTemplateId()))
                 .map(notificationRepository::saveAndFlush)
                 .map(mapper::mapToResponse)
                 .orElseThrow(() -> new NotificationCreationException("Failed to create notification"));
     }
 
+    @Override
+    public NotificationResponse setNotificationAsASent(Long userId, Long NotificationId) {
+        return null;
+    }
 
-
+    @Override
+    public NotificationResponse setNotificationAsFailed(Long userId, Long NotificationId) {
+        return null;
+    }
 
     @Override
     public NotificationResponse setNotificationAsPending(Long notificationId) {
         return notificationRepository.findById(notificationId)
-                .map(notification -> {
-                    notification.setStatus(NotificationStatus.IN_PROGRESS);
-                    return notification;
+                .map(n -> {
+                    n.setStatus(NotificationStatus.IN_PROGRESS);
+                    return n;
                 })
                 .map(notificationRepository::saveAndFlush)
                 .map(mapper::mapToResponse)
-                .orElseThrow(() -> new NotificationNotFoundException(
-                        "notification.not_found" + notificationId
-
-                ));
+                .orElseThrow(() ->
+                        new NotificationNotFoundException("Notification not found: " + notificationId));
     }
+
 
 
     // For this method, I am using Twilio.
@@ -195,10 +201,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
 
+
+
     private void sendNotificationAndUpdateStatus(Notification notification, UserResponse user, String content) {
         try {
 
-            //Twilio
+            //Twilio this is just comment
 //            smsSender.sendSms(content, user);
 
             simulateSmsSending(content, user);
