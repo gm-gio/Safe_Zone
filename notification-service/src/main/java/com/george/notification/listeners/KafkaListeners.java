@@ -6,6 +6,7 @@ import com.george.clients.urlShortener.UrlsResponse;
 import com.george.clients.user.UserClient;
 import com.george.clients.user.UserResponse;
 
+import com.george.core.TemplateResponseForUserListK;
 import com.george.core.UserListKafka;
 import com.george.notification.dto.kafka.NotificationKafka;
 import com.george.notification.dto.request.NotificationRequest;
@@ -37,6 +38,7 @@ public class KafkaListeners {
     private final ShortenerClient shortenerClient;
 
 
+
     @Value("${spring.kafka.topics.email}")
     private String emailTopic;
 
@@ -54,9 +56,11 @@ public class KafkaListeners {
 
     private void listener(UserListKafka userListKafka) {
 
-
         Runnable runnable = () -> {
-            TemplateResponse templateResponse = userListKafka.getTemplateResponse();
+
+            TemplateResponseForUserListK templateResponse =
+                    userListKafka.getTemplateResponse();
+
             List<Long> userIds = userListKafka.getUserIds();
 
             for (Long userId : userIds) {
@@ -64,7 +68,6 @@ public class KafkaListeners {
 
                 try {
                     response = userClient.getUserById(userId);
-
                 } catch (RuntimeException e) {
                     // TODO
                     continue;
@@ -74,16 +77,31 @@ public class KafkaListeners {
                     continue;
                 }
 
-                UrlsResponse urlResponse = shortenerClient.generate(templateResponse.getTemplateId()).getBody();
+                UrlsResponse urlResponse =
+                        shortenerClient.generate(
+                                templateResponse.getTemplateId()
+                        ).getBody();
 
+                sendNotificationByCredential(
+                        response::getEmail,
+                        NotificationType.EMAIL,
+                        response,
+                        templateResponse,
+                        emailTopic,
+                        urlResponse
+                );
 
-                sendNotificationByCredential(response::getEmail, NotificationType.EMAIL, response, templateResponse, emailTopic, urlResponse);
-                sendNotificationByCredential(response::getPhone, NotificationType.PHONE, response, templateResponse, phoneTopic, urlResponse);
-
-
+                sendNotificationByCredential(
+                        response::getPhone,
+                        NotificationType.PHONE,
+                        response,
+                        templateResponse,
+                        phoneTopic,
+                        urlResponse
+                );
             }
-
         };
+
         executorService.submit(runnable);
     }
 
@@ -91,7 +109,7 @@ public class KafkaListeners {
     private void sendNotificationByCredential(Supplier<String> supplier,
                                               NotificationType type,
                                               UserResponse userResponse,
-                                              TemplateResponse templateResponse,
+                                              TemplateResponseForUserListK templateResponse,
                                               String topic,
                                               UrlsResponse urlResponse) {
         String credential = supplier.get();

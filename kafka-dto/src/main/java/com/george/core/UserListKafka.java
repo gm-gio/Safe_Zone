@@ -2,7 +2,7 @@ package com.george.core;
 
 
 
-import com.george.clients.template.TemplateResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserListKafka {
-    private TemplateResponse templateResponse;
+    private TemplateResponseForUserListK templateResponse;
     private List<Long> userIds;
 }

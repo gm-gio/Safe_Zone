@@ -1,5 +1,6 @@
 package com.george.notification.controller;
 
+import com.george.notification.dto.kafka.NotificationKafka;
 import com.george.notification.dto.request.NotificationRequest;
 import com.george.notification.dto.response.NotificationResponse;
 import com.george.notification.service.NotificationService;
@@ -10,7 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
@@ -26,6 +30,17 @@ public class NotificationController {
         return ResponseEntity.status(CREATED).body(notificationService.createNotification(request));
     }
 
+    @GetMapping("/")
+    @Operation(summary = "FOR REBALANCER: get Resending/Pending/New Notifications (set Pending status)")
+    public ResponseEntity<List<NotificationKafka>> getNotificationsForRebalancing(
+            @RequestParam(name = "pending", required = false, defaultValue = "10") Long pendingSec,
+            @RequestParam(name = "new", required = false, defaultValue = "10") Long newSec,
+            @RequestParam(name = "size", required = false, defaultValue = "20") Integer size
+    ) {
+        return ResponseEntity.status(OK).body(
+                notificationService.getNotificationsForRebalancing(pendingSec, newSec, size)
+        );
+    }
 
 
     @Operation(
@@ -45,7 +60,7 @@ public class NotificationController {
     @Operation(summary = "send a Notification to User")
     public ResponseEntity<String> sendNotification(@PathVariable Long userId, @PathVariable Long notificationId) {
         NotificationResponse response = notificationService.sendNotificationToUser(userId, notificationId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(OK).build();
     }
 
     @PostMapping("/sendToGroup/{groupId}/{notificationId}")
@@ -55,6 +70,6 @@ public class NotificationController {
             @PathVariable Long notificationId) {
         NotificationResponse response = notificationService.sendNotificationToGroup(groupId, notificationId);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(OK).build();
     }
 }

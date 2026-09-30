@@ -1,18 +1,16 @@
-package com.george.shortener.dto.request;
-
+package com.george.core;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Builder
-public class NotificationOptionsRequest {
-
-   private List<String> options;
+public class TemplateResponseForUserListK {
+    private Long templateId;
+    private String title;
+    private String content;
 }

@@ -69,5 +69,14 @@ public class Notification {
         return this;
     }
 
+    public Notification updateCreatedAt() {
+        setCreatedAt(LocalDateTime.now());
+        return this;
+    }
+
+    public Notification setNotificationStatus(NotificationStatus notificationStatus) {
+        setStatus(notificationStatus);
+        return this;
+    }
 
 }

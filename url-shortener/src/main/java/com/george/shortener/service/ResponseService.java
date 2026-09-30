@@ -39,8 +39,8 @@ public class ResponseService {
                 .stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toMap(
-                        strings -> UUID.randomUUID().toString(),
-                        Function.identity()
+                        Function.identity(),
+                        opt -> UUID.randomUUID().toString()
                 ));
 
         Url url = Url.builder()

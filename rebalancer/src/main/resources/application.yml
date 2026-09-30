@@ -1,9 +1,9 @@
 server:
-  port: 52942
+  port: 52943
 
 spring:
   application:
-    name: url-shortener
+    name: rebalancer
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/notification
@@ -17,10 +17,22 @@ spring:
     hibernate:
       ddl-auto: update
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    partitions: 3
+    topics:
+      email: email-notification
+      phone: phone-notification
+      router: user-list-router
+
+rebalancer:
+  seconds-before-resend-pending: 5
+  seconds-before-resend-new: 5
+  max-amount-to-fetch: 15
 
 springdoc:
   api-docs:
-    path: /url-shortener/api-docs
+    path: /rebalancer/api-docs
 
 
 

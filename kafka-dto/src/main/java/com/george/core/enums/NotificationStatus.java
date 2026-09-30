@@ -1,4 +1,6 @@
-package com.george.notification.enums;
+package com.george.core.enums;
+
+
 
 public enum NotificationStatus implements EnumCode {
 
@@ -20,5 +22,3 @@ public enum NotificationStatus implements EnumCode {
         return code;
     }
 }
-
-

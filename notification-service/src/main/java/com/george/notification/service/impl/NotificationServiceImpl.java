@@ -4,10 +4,13 @@ import com.george.clients.group.GroupClient;
 import com.george.clients.group.GroupUserResponse;
 import com.george.clients.template.TemplateClient;
 import com.george.clients.template.TemplateResponse;
+import com.george.clients.urlShortener.ShortenerClient;
 import com.george.clients.user.UserClient;
 import com.george.clients.user.UserResponse;
+import com.george.core.TemplateResponseForUserListK;
 import com.george.core.UserListKafka;
 import com.george.notification.config.twilio.SmsSender;
+import com.george.notification.dto.kafka.NotificationKafka;
 import com.george.notification.dto.request.NotificationRequest;
 import com.george.notification.dto.response.NotificationResponse;
 import com.george.notification.entity.Notification;
@@ -27,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -36,6 +40,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 
 @Slf4j
@@ -52,6 +58,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final GroupClient groupClient;
     private final NodeTracker nodeTracker;
     private final KafkaTemplate<String, UserListKafka> kafkaTemplate;
+    private final ShortenerClient shortenerClient;
+
 
     @Autowired
     private final JavaMailSender javaMailSender;  //AWS
@@ -65,17 +73,29 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public String distributeNotifications(Long templateId) {
         List<Long> userIds = userClient.getUserIds();
+
         if (userIds == null || userIds.isEmpty()) {
             throw new UsersNotFoundException("users.not_found");
         }
 
-        TemplateResponse templateResponse = templateClient.getTemplateById(templateId);
+        TemplateResponse templateResponse =
+                templateClient.getTemplateById(templateId);
+
         if (templateResponse == null) {
             throw new NotificationNotFoundException("Template not found");
         }
 
+        TemplateResponseForUserListK kafkaTemplateResponse =
+                TemplateResponseForUserListK.builder()
+                        .templateId(templateResponse.getTemplateId())
+                        .title(templateResponse.getTitle())
+                        .content(templateResponse.getContent())
+                        .build();
+
         for (List<Long> batch : splitUsers(userIds)) {
-            UserListKafka listKafka = new UserListKafka(templateResponse, batch);
+            UserListKafka listKafka =
+                    new UserListKafka(kafkaTemplateResponse, batch);
+
             kafkaTemplate.send(userListRoutingTopic, listKafka);
         }
 
@@ -116,6 +136,19 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(mapper::mapToResponse)
                 .orElseThrow(() ->
                         new NotificationNotFoundException("Notification not found: " + notificationId));
+    }
+
+    @Override
+    public List<NotificationKafka> getNotificationsForRebalancing(Long pendingSec, Long newSec, Integer size){
+        LocalDateTime now = LocalDateTime.now();
+        return notificationRepository.findNotificationsByStatusAndCreatedAt(
+                        now.minus(pendingSec, SECONDS), now.minus(newSec, SECONDS), Pageable.ofSize(size)
+                ).stream()
+                .map(notification -> notification.setNotificationStatus(NotificationStatus.IN_PROGRESS))
+                .map(Notification::updateCreatedAt)
+                .map(notificationRepository::saveAndFlush)
+                .map(notification -> mapper.mapToKafka(notification, templateClient, shortenerClient))
+                .toList();
     }
 
 
@@ -207,9 +240,9 @@ public class NotificationServiceImpl implements NotificationService {
         try {
 
             //Twilio this is just comment
-//            smsSender.sendSms(content, user);
+            smsSender.sendSms(content, user);
 
-            simulateSmsSending(content, user);
+//            simulateSmsSending(content, user);
 
             notification.setStatus(NotificationStatus.DELIVERED);
         } catch (NotificationSendException e) {

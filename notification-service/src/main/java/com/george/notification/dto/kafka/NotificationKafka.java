@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,5 +20,6 @@ public class NotificationKafka {
     private NotificationStatus status;
     private Integer retryAttempts;
     private Long userId;
+    private Map<String, String> urlOptionMap;
 
 }
