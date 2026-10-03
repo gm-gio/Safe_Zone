@@ -2,8 +2,9 @@ package com.george.notification.mapper;
 
 import com.george.clients.template.TemplateClient;
 import com.george.clients.urlShortener.ShortenerClient;
-import com.george.notification.dto.kafka.NotificationKafka;
+import com.george.core.NotificationKafka;
 import com.george.notification.dto.request.NotificationRequest;
+import com.george.notification.dto.response.NotificationHistoryResponse;
 import com.george.notification.dto.response.NotificationResponse;
 import com.george.notification.entity.Notification;
 import com.george.notification.entity.NotificationHistory;
@@ -26,8 +27,13 @@ public interface NotificationMapper {
     @Mapping(target = "userId", source = "notification.userId")
     @Mapping(target = "groupId", source = "notification.groupId")
     NotificationHistory mapToHistory(Notification notification);
+
+    @Mapping(target = "id", source = "notificationId")
     NotificationKafka mapToKafka(NotificationResponse notificationResponse, @Context Map<String, String> urlOptionMap);
+
+    @Mapping(target = "id", source = "notificationId")
     NotificationKafka mapToKafka(Notification notification, @Context TemplateClient templateClient, @Context ShortenerClient shortenerClient);
 
+    NotificationHistoryResponse mapToResponse(NotificationHistory notificationHistory);
 
 }

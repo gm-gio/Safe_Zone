@@ -17,7 +17,6 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @Setter
 @Builder
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notifications_history")
@@ -36,6 +35,8 @@ public class NotificationHistory {
 
     @Enumerated(EnumType.STRING)
     NotificationType type;
+
+    private String credential;
 
     @Enumerated(EnumType.STRING)
     NotificationStatus status;
@@ -57,5 +58,10 @@ public class NotificationHistory {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public NotificationHistory setNotificationStatus(NotificationStatus notificationStatus) {
+        setStatus(notificationStatus);
+        return this;
     }
 }

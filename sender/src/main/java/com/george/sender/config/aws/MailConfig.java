@@ -1,4 +1,4 @@
-package com.george.notification.config.aws;
+package com.george.sender.config.aws;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

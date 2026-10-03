@@ -1,4 +1,4 @@
-package com.george.notification.config.twilio;
+package com.george.sender.config.twilio;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

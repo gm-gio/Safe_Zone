@@ -1,9 +1,9 @@
 server:
-  port: 8086
+  port: 0
 
 spring:
   application:
-    name: notification
+    name: sender
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/notification
@@ -17,16 +17,22 @@ spring:
     hibernate:
       ddl-auto: update
 
-
   kafka:
     bootstrap-servers: localhost:9092
-    partitions: 3
     topics:
       email: email-notification
       phone: phone-notification
-      router: user-list-router
 
+  config:
+    import: secret.yml
 
+services:
+  notification: notification-service
+
+notification:
+  maxRetryAttempts: 3
+  mail:
+    from: giorgimeshve@gmail.com
 
 
 eureka:

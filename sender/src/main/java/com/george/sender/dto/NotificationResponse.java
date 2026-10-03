@@ -1,0 +1,22 @@
+package com.george.sender.dto;
+
+import com.george.core.enums.NotificationStatus;
+import com.george.core.enums.NotificationType;
+import lombok.Builder;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+public class NotificationResponse {
+    private  Long notificationId;
+    private Long userId;
+    private Long templateId;
+    private Long groupId;
+    private String credential;
+    private NotificationType type;
+    private NotificationStatus status;
+    private Integer retryAttempts;
+    private LocalDateTime createdAt;
+}

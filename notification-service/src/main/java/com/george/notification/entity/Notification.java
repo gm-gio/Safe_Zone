@@ -78,5 +78,9 @@ public class Notification {
         setStatus(notificationStatus);
         return this;
     }
+    public Notification incrementRetryAttempts() {
+        setRetryAttempts(getRetryAttempts() + 1);
+        return this;
+    }
 
 }

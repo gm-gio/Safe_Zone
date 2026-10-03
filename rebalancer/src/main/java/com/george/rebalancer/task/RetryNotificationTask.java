@@ -4,6 +4,7 @@ package com.george.rebalancer.task;
 import com.george.clients.notification.NotificationClient;
 import com.george.core.NotificationKafka;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -14,6 +15,7 @@ import java.util.List;
 
 
 
+@Slf4j
 @Component
 @EnableScheduling
 @RequiredArgsConstructor
@@ -38,22 +40,35 @@ public class RetryNotificationTask {
     private final KafkaTemplate<String, NotificationKafka> kafkaTemplate;
 
     @Scheduled(fixedDelay = 5000)
-    private void renotify() {
-        List<NotificationKafka> notificationKafkaList = notificationClient.getNotificationsForRebalancing( // TODO: exception handling if service unavailable
-                secondsBeforeResendPending,
-                secondsBeforeResendNew,
-                amountToFetch
-        ).getBody();
+    public void renotify() {
+
+        List<NotificationKafka> notificationKafkaList;
+
+        try {
+            notificationKafkaList = notificationClient.getNotificationsForRebalancing(
+                    secondsBeforeResendPending,
+                    secondsBeforeResendNew,
+                    amountToFetch
+            ).getBody();
+        } catch (Exception e) {
+            log.warn("Notification service unavailable, skipping this run: {}", e.getMessage());
+            return;
+        }
 
         if (notificationKafkaList == null || notificationKafkaList.isEmpty()) {
             return;
         }
 
-        for (NotificationKafka notification : notificationKafkaList) {
-            switch (notification.getType()) {
-                case PHONE -> kafkaTemplate.send(phoneTopic, notification);
-                case EMAIL -> kafkaTemplate.send(emailTopic, notification);
+        log.info("Rebalancing {} notifications", notificationKafkaList.size());
 
+        for (NotificationKafka notification : notificationKafkaList) {
+            try {
+                switch (notification.getType()) {
+                    case PHONE -> kafkaTemplate.send(phoneTopic, notification);
+                    case EMAIL -> kafkaTemplate.send(emailTopic, notification);
+                }
+            } catch (Exception e) {
+                log.error("Failed to send notification id={} to Kafka", notification.getId(), e);
             }
         }
     }

@@ -21,6 +21,7 @@ public class NotificationKafka {
     private NotificationStatus status;
     private Integer retryAttempts;
     private Long userId;
+    private Long templateId;
     private Map<String, String> urlOptionMap;
 
 

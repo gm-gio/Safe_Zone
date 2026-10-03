@@ -1,6 +1,5 @@
-package com.george.notification.config.twilio;
+package com.george.sender.config.twilio;
 
-import com.george.clients.user.UserResponse;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.type.PhoneNumber;
@@ -16,18 +15,21 @@ public class TwilioSmsSender implements SmsSender {
     private final TwilioConfig twilioConfig;
 
     @Override
-    public void sendSms(String message, UserResponse userResponse) {
-        if (isPhoneNumberValid(userResponse.getPhone())) {
+    public void sendSms(String message, String phone) {
 
-            PhoneNumber to = new PhoneNumber(userResponse.getPhone());
+        if (isPhoneNumberValid(phone)) {
+
+            PhoneNumber to = new PhoneNumber(phone);
             PhoneNumber from = new PhoneNumber(twilioConfig.getPhoneNumber());
+
             MessageCreator creator = Message.creator(to, from, message);
             creator.create();
-            log.info("Send sms to: {}", userResponse.getPhone());
+
+            log.info("Send sms to: {}", phone);
 
         } else {
             throw new IllegalArgumentException(
-                    "Phone number [" + userResponse.getPhone() + "] is not valid"
+                    "Phone number [" + phone + "] is not valid"
             );
         }
     }

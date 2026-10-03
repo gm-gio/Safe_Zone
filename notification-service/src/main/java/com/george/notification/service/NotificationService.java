@@ -1,6 +1,6 @@
 package com.george.notification.service;
 
-import com.george.notification.dto.kafka.NotificationKafka;
+import com.george.core.NotificationKafka;
 import com.george.notification.dto.request.NotificationRequest;
 import com.george.notification.dto.response.NotificationResponse;
 
@@ -14,11 +14,5 @@ public interface NotificationService {
 
     List<NotificationKafka> getNotificationsForRebalancing(Long pendingSec, Long newSec, Integer size);
 
-    NotificationResponse sendNotificationToUser(Long userId, Long notificationId);
-
-    NotificationResponse sendNotificationToGroup(Long groupId, Long notificationId);
-
-    NotificationResponse setNotificationAsASent(Long userId, Long NotificationId);
-    NotificationResponse setNotificationAsFailed(Long userId, Long NotificationId);
     NotificationResponse setNotificationAsPending(Long NotificationId);
 }

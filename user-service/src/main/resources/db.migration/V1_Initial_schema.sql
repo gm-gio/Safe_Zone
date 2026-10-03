@@ -10,13 +10,14 @@ CREATE TABLE IF NOT EXISTS users (
 
 INSERT INTO users (first_name, last_name, email, phone, password_hash, user_role)
 VALUES
-    ('John', 'Doe', 'john.doe@example.com', '123-456-7890', 'hashed_password_1', 'USER'),
-    ('George', 'Meshveliani', 'giorgimeshve@gmail.com', '123-456-7891', 'hashed_password_2', 'ADMIN'),
-    ('Mark', 'Johnson', 'mark.johnson@example.com', '123-456-7892', 'hashed_password_3', 'USER'),
-    ('Emily', 'Davis', 'emily.davis@example.com', '123-456-7893', 'hashed_password_4', 'USER'),
-    ('Michael', 'Brown', 'michael.brown@example.com', '123-456-7894', 'hashed_password_5', 'USER''),
-    ('Sophia', 'Williams', 'sophia.williams@example.com', '123-456-7895', 'hashed_password_6', 'USER''),
-    ('James', 'Miller', 'james.miller@example.com', '123-456-7896', 'hashed_password_7', 'USER''),
-    ('Olivia', 'Wilson', 'olivia.wilson@example.com', '123-456-7897', 'hashed_password_8', 'USER''),
-    ('Daniel', 'Moore', 'daniel.moore@example.com', '123-456-7898', 'hashed_password_9', 'USER''),
-    ('Isabella', 'Taylor', 'isabella.taylor@example.com', '123-456-7899', 'hashed_password_10', 'USER'');
+    ('John',     'Doe',        'success+john@simulator.amazonses.com',     '+4917600000001', 'hashed_password_1',  'USER'),
+    ('George',   'Meshveliani','giorgimeshve@gmail.com',                   '123-456-7891',   'hashed_password_2',  'ADMIN'),
+    ('Mark',     'Johnson',    'success+mark@simulator.amazonses.com',     '+4917600000003', 'hashed_password_3',  'USER'),
+    ('Emily',    'Davis',      'success+emily@simulator.amazonses.com',    '+4917600000004', 'hashed_password_4',  'USER'),
+    ('Michael',  'Brown',      'success+michael@simulator.amazonses.com',  '+4917600000005', 'hashed_password_5',  'USER'),
+    ('Sophia',   'Williams',   'success+sophia@simulator.amazonses.com',   '+4917600000006', 'hashed_password_6',  'USER'),
+    ('James',    'Miller',     'success+james@simulator.amazonses.com',    '+4917600000007', 'hashed_password_7',  'USER'),
+    ('Olivia',   'Wilson',     'success+olivia@simulator.amazonses.com',   '+4917600000008', 'hashed_password_8',  'USER'),
+    ('Daniel',   'Moore',      'success+daniel@simulator.amazonses.com',   '+4917600000009', 'hashed_password_9',  'USER'),
+    ('Isabella', 'Taylor',     'success+isabella@simulator.amazonses.com', '+4917600000010', 'hashed_password_10', 'USER')
+ON CONFLICT (email) DO NOTHING;

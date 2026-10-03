@@ -1,4 +1,4 @@
-package com.george.notification.config.twilio;
+package com.george.sender.config.twilio;
 
 import com.twilio.Twilio;
 import lombok.extern.slf4j.Slf4j;

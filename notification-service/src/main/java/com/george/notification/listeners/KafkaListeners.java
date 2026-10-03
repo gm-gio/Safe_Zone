@@ -1,19 +1,19 @@
 package com.george.notification.listeners;
 
-import com.george.clients.template.TemplateResponse;
 import com.george.clients.urlShortener.ShortenerClient;
 import com.george.clients.urlShortener.UrlsResponse;
 import com.george.clients.user.UserClient;
 import com.george.clients.user.UserResponse;
 
+import com.george.core.NotificationKafka;
 import com.george.core.TemplateResponseForUserListK;
 import com.george.core.UserListKafka;
-import com.george.notification.dto.kafka.NotificationKafka;
+
 import com.george.notification.dto.request.NotificationRequest;
 import com.george.notification.dto.response.NotificationResponse;
 import com.george.notification.enums.NotificationType;
 import com.george.notification.mapper.NotificationMapper;
-import com.george.notification.service.NotificationService;
+import com.george.notification.service.impl.NotificationServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 public class KafkaListeners {
 
     private final KafkaTemplate<String, NotificationKafka> kafkaTemplate;
-    private final NotificationService notificationService;
+    private final NotificationServiceImpl notificationServiceImpl;
     private final UserClient userClient;
     private final NotificationMapper mapper;
     private final ShortenerClient shortenerClient;
@@ -117,7 +117,7 @@ public class KafkaListeners {
             Long notificationId;
 
             try {
-                notificationId = notificationService.createNotification(
+                notificationId = notificationServiceImpl.createNotification(
                         NotificationRequest.builder()
                                 .type(type)
                                 .userId(userResponse.getUserId())
@@ -131,7 +131,7 @@ public class KafkaListeners {
             } catch (EntityNotFoundException e) {
                 return;
             }
-            NotificationResponse notificationResponse = notificationService.setNotificationAsPending(notificationId);
+            NotificationResponse notificationResponse = notificationServiceImpl.setNotificationAsPending(notificationId);
             NotificationKafka notificationKafka = mapper.mapToKafka(notificationResponse, urlResponse.getUrlOptionMap());
 
             kafkaTemplate.send(topic, notificationKafka);

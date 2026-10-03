@@ -1,34 +1,30 @@
 package com.george.notification.controller;
 
-import com.george.notification.dto.kafka.NotificationKafka;
+import com.george.core.NotificationKafka;
 import com.george.notification.dto.request.NotificationRequest;
+import com.george.notification.dto.response.NotificationHistoryResponse;
 import com.george.notification.dto.response.NotificationResponse;
-import com.george.notification.service.NotificationService;
+import com.george.notification.service.impl.NotificationServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.CREATED;
+
 import static org.springframework.http.HttpStatus.OK;
 
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/notifications")
+@RequestMapping("/api/v1/notifications")
 public class NotificationController {
 
-    private final NotificationService notificationService;
+    private final NotificationServiceImpl notificationServiceImpl;
 
-    @PostMapping("/new")
-    @Operation(summary = "create a Notification")
-    public ResponseEntity<NotificationResponse> createNotification(@RequestBody NotificationRequest request) {
-        return ResponseEntity.status(CREATED).body(notificationService.createNotification(request));
-    }
 
     @GetMapping("/")
     @Operation(summary = "FOR REBALANCER: get Resending/Pending/New Notifications (set Pending status)")
@@ -38,9 +34,10 @@ public class NotificationController {
             @RequestParam(name = "size", required = false, defaultValue = "20") Integer size
     ) {
         return ResponseEntity.status(OK).body(
-                notificationService.getNotificationsForRebalancing(pendingSec, newSec, size)
+                notificationServiceImpl.getNotificationsForRebalancing(pendingSec, newSec, size)
         );
     }
+
 
 
     @Operation(
@@ -52,24 +49,46 @@ public class NotificationController {
             @Parameter(description = "ID of the notification template", required = true)
             @PathVariable Long templateId
     ) {
-        String result = notificationService.distributeNotifications(templateId);
+        String result = notificationServiceImpl.distributeNotifications(templateId);
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/sendToUser/{userId}/{notificationId}")
-    @Operation(summary = "send a Notification to User")
-    public ResponseEntity<String> sendNotification(@PathVariable Long userId, @PathVariable Long notificationId) {
-        NotificationResponse response = notificationService.sendNotificationToUser(userId, notificationId);
-        return ResponseEntity.status(OK).build();
+    @PostMapping("/{notificationId}/sent")
+    @Operation(summary = "set Notification status as successfully sent to Recipient")
+    public ResponseEntity<NotificationHistoryResponse> setNotificationAsASent(
+            @RequestHeader Long userId,
+            @PathVariable("notificationId") Long notificationId
+    ) {
+        return ResponseEntity.status(OK).body(notificationServiceImpl.setNotificationAsASent(userId, notificationId));
     }
 
-    @PostMapping("/sendToGroup/{groupId}/{notificationId}")
-    @Operation(summary ="send a Notification to group" )
-    public ResponseEntity<String> sendNotificationToGroup(
-            @PathVariable Long groupId,
-            @PathVariable Long notificationId) {
-        NotificationResponse response = notificationService.sendNotificationToGroup(groupId, notificationId);
-
-        return ResponseEntity.status(OK).build();
+    @PostMapping("/{notificationId}/error")
+    @Operation(summary = "set Notification status as error")
+    public ResponseEntity<NotificationHistoryResponse> setNotificationAsError(
+            @RequestHeader Long userId,
+            @PathVariable("notificationId") Long notificationId
+    ) {
+        return ResponseEntity.status(OK).body(notificationServiceImpl.setNotificationAsFailed(userId, notificationId));
     }
+
+    @PostMapping("/{notificationId}/corrupt")
+    @Operation(summary = "set Notification status as impossible to sent")
+    public ResponseEntity<NotificationHistoryResponse> setNotificationAsCorrupt(
+            @RequestHeader Long userId,
+            @PathVariable("notificationId") Long notificationId
+    ) {
+        return ResponseEntity.status(OK).body(notificationServiceImpl.setNotificationAsCorrupt(userId, notificationId));
+    }
+
+    @PostMapping("/{notificationId}/resending")
+    @Operation(summary = "set Notification status as waiting to be resend")
+    public ResponseEntity<NotificationResponse> setNotificationAsResending(
+            @RequestHeader Long userId,
+            @PathVariable("notificationId") Long notificationId
+    ) {
+        return ResponseEntity.status(OK).body(notificationServiceImpl.setNotificationAsResending(userId, notificationId));
+    }
+
+
+
 }
