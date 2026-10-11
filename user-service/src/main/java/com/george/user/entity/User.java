@@ -26,11 +26,12 @@ public class User {
 
     private String lastName;
 
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String phone;
 
-    @ToString.Exclude
+    @Column(nullable = false)
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)

@@ -3,15 +3,14 @@ package com.george.user.service.impl;
 import com.george.core.UserRegisterEvent;
 import com.george.core.UserRemoveEvent;
 import com.george.core.UserUpdateEvent;
-import com.george.user.dto.UserRequest;
+import com.george.user.dto.*;
 
-import com.george.user.dto.UserResponse;
 import com.george.user.entity.UserRole;
+import com.george.user.exception.UserAlreadyExistsException;
 import com.george.user.exception.UserNotFoundException;
-import com.george.user.exception.UserRegistrationException;
-import com.george.user.exception.UserRequestException;
 import com.george.user.mapper.UserMapper;
 import com.george.user.repository.UserRepository;
+import com.george.user.service.JwtService;
 import com.george.user.service.UserService;
 import com.george.user.entity.User;
 
@@ -19,7 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +35,8 @@ public class UserServiceImpl implements UserService {
     private final KafkaTemplate<String, UserUpdateEvent> userUpdateKafkaTemplate;
     private final KafkaTemplate<String, UserRemoveEvent> userRemoveKafkaTemplate;
     private final UserMapper mapper;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Value("${spring.kafka.topics.user-register}")
     private String userRegisterTopic;
@@ -46,30 +47,72 @@ public class UserServiceImpl implements UserService {
     @Value("${spring.kafka.topics.user-update}")
     private String userUpdateTopic;
 
+
     @Override
     @Transactional
-    public UserResponse registerUser(UserRequest request) {
-        try {
-            Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+    public AuthResponse register(RegisterRequest request) {
 
-            if (existingUser.isPresent()) {
-                throw new UserRequestException("User with Email: " + request.getEmail() + "already exists");
-            }
+        String email = request.getEmail().trim().toLowerCase();
 
-            String hashedPassword = passwordEncoder.encode(request.getPasswordHash());
-
-            User user = mapper.mapToEntity(request);
-            user.setPasswordHash(hashedPassword);
-            user.setUserRole(UserRole.USER);
-
-            User savedUser = userRepository.save(user);
-
-            sendUserRegistrationEvent(savedUser);
-
-            return mapper.mapToResponse(savedUser);
-        } catch (DataIntegrityViolationException e) {
-            throw new UserRegistrationException("Database error during user registration", e);
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new UserAlreadyExistsException(
+                    "User with email " + email + " already exists"
+            );
         }
+
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(email);
+        user.setPhone(request.getPhone());
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setUserRole(UserRole.USER);
+
+        User savedUser;
+        try {
+            savedUser = userRepository.saveAndFlush(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new UserAlreadyExistsException(
+                    "User with email " + email + " already exists"
+            );
+        }
+
+        sendUserRegistrationEvent(savedUser);
+
+        String token = jwtService.generateToken(savedUser);
+
+        return new AuthResponse(
+                token,
+                savedUser.getUserId(),
+                savedUser.getEmail(),
+                savedUser.getUserRole()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public AuthResponse login(LoginRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new BadCredentialsException("Invalid email or password")
+                );
+
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPasswordHash()
+        )) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
+
+        String token = jwtService.generateToken(user);
+
+        return new AuthResponse(
+                token,
+                user.getUserId(),
+                user.getEmail(),
+                user.getUserRole()
+        );
     }
 
 
@@ -131,9 +174,9 @@ public class UserServiceImpl implements UserService {
 
         UserRemoveEvent event = new UserRemoveEvent(user.getUserId());
 
-        userRemoveKafkaTemplate.send(userRemoveTopic, event);
-
         userRepository.delete(user);
+
+        userRemoveKafkaTemplate.send(userRemoveTopic, event);
     }
 
     @Override

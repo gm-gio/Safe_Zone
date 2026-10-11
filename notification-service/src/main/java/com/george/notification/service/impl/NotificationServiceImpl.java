@@ -95,7 +95,6 @@ public class NotificationServiceImpl implements NotificationService, Notificatio
     }
 
 
-
     @Override
     public NotificationResponse createNotification(NotificationRequest request) {
 
@@ -147,18 +146,18 @@ public class NotificationServiceImpl implements NotificationService, Notificatio
                         new NotificationNotFoundException("Notification not found: " + notificationId));
     }
 
-
+    @Override
     public NotificationResponse setNotificationAsResending(Long userId, Long notificationId) {
         return notificationRepository.findByNotificationIdAndUserId(notificationId, userId)
                 .map(Notification::incrementRetryAttempts)
                 .map(notification -> notification.setNotificationStatus(RESENDING))
                 .map(notificationRepository::saveAndFlush)
                 .map(mapper::mapToResponse)
-                .orElseThrow(() ->   new NotificationNotFoundException("Notification not found: " + notificationId + userId));
+                .orElseThrow(() -> new NotificationNotFoundException("Notification not found: " + notificationId + userId));
     }
 
     @Override
-    public List<NotificationKafka> getNotificationsForRebalancing(Long pendingSec, Long newSec, Integer size){
+    public List<NotificationKafka> getNotificationsForRebalancing(Long pendingSec, Long newSec, Integer size) {
         LocalDateTime now = LocalDateTime.now();
         return notificationRepository.findNotificationsByStatusAndCreatedAt(
                         now.minus(pendingSec, SECONDS), now.minus(newSec, SECONDS), Pageable.ofSize(size)
@@ -169,7 +168,6 @@ public class NotificationServiceImpl implements NotificationService, Notificatio
                 .map(notification -> mapper.mapToKafka(notification, templateClient, shortenerClient))
                 .toList();
     }
-
 
 
     private NotificationHistoryResponse setNotificationAsExecutedWithGivenStatus(
@@ -189,7 +187,6 @@ public class NotificationServiceImpl implements NotificationService, Notificatio
                         "Notification not found: " + notificationId + " for user: " + userId
                 ));
     }
-
 
 
     private List<List<Long>> splitUsers(List<Long> list) {

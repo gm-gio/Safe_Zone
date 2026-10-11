@@ -12,6 +12,8 @@ public interface NotificationService {
 
     String distributeNotifications(Long notificationId);
 
+    NotificationResponse setNotificationAsResending(Long userId, Long notificationId);
+
     List<NotificationKafka> getNotificationsForRebalancing(Long pendingSec, Long newSec, Integer size);
 
     NotificationResponse setNotificationAsPending(Long NotificationId);

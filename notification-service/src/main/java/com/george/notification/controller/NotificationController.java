@@ -1,10 +1,10 @@
 package com.george.notification.controller;
 
 import com.george.core.NotificationKafka;
-import com.george.notification.dto.request.NotificationRequest;
 import com.george.notification.dto.response.NotificationHistoryResponse;
 import com.george.notification.dto.response.NotificationResponse;
-import com.george.notification.service.impl.NotificationServiceImpl;
+import com.george.notification.service.NotificationHistoryService;
+import com.george.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,8 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/api/v1/notifications")
 public class NotificationController {
 
-    private final NotificationServiceImpl notificationServiceImpl;
+    private final NotificationService notificationService;
+    private final NotificationHistoryService notificationHistoryService;
 
 
     @GetMapping("/")
@@ -34,7 +35,7 @@ public class NotificationController {
             @RequestParam(name = "size", required = false, defaultValue = "20") Integer size
     ) {
         return ResponseEntity.status(OK).body(
-                notificationServiceImpl.getNotificationsForRebalancing(pendingSec, newSec, size)
+                notificationService.getNotificationsForRebalancing(pendingSec, newSec, size)
         );
     }
 
@@ -49,7 +50,7 @@ public class NotificationController {
             @Parameter(description = "ID of the notification template", required = true)
             @PathVariable Long templateId
     ) {
-        String result = notificationServiceImpl.distributeNotifications(templateId);
+        String result = notificationService.distributeNotifications(templateId);
         return ResponseEntity.ok(result);
     }
 
@@ -59,7 +60,7 @@ public class NotificationController {
             @RequestHeader Long userId,
             @PathVariable("notificationId") Long notificationId
     ) {
-        return ResponseEntity.status(OK).body(notificationServiceImpl.setNotificationAsASent(userId, notificationId));
+        return ResponseEntity.status(OK).body(notificationHistoryService.setNotificationAsASent(userId, notificationId));
     }
 
     @PostMapping("/{notificationId}/error")
@@ -68,7 +69,7 @@ public class NotificationController {
             @RequestHeader Long userId,
             @PathVariable("notificationId") Long notificationId
     ) {
-        return ResponseEntity.status(OK).body(notificationServiceImpl.setNotificationAsFailed(userId, notificationId));
+        return ResponseEntity.status(OK).body(notificationHistoryService.setNotificationAsFailed(userId, notificationId));
     }
 
     @PostMapping("/{notificationId}/corrupt")
@@ -77,7 +78,7 @@ public class NotificationController {
             @RequestHeader Long userId,
             @PathVariable("notificationId") Long notificationId
     ) {
-        return ResponseEntity.status(OK).body(notificationServiceImpl.setNotificationAsCorrupt(userId, notificationId));
+        return ResponseEntity.status(OK).body(notificationHistoryService.setNotificationAsCorrupt(userId, notificationId));
     }
 
     @PostMapping("/{notificationId}/resending")
@@ -86,7 +87,7 @@ public class NotificationController {
             @RequestHeader Long userId,
             @PathVariable("notificationId") Long notificationId
     ) {
-        return ResponseEntity.status(OK).body(notificationServiceImpl.setNotificationAsResending(userId, notificationId));
+        return ResponseEntity.status(OK).body(notificationService.setNotificationAsResending(userId, notificationId));
     }
 
 
